@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import { CATEGORIES, SENTIMENTS, USERS } from '../config/constants.js';
 import SentimentSelect from './SentimentSelect.jsx';
 
-export default function ListManager({ user, items, onChangeSentiment, onDeleteItem }) {
+export default function ListManager({ user, items, onChangeSentiment, onDeleteItem, search = '', filterCategory = '', filterSentiment = '' }) {
   const [activeTab, setActiveTab] = useState('mine');
   const partnerName = user === USERS.USER_A ? USERS.USER_B : USERS.USER_A;
 
   const filteredItems = items.filter(item => {
-    if (activeTab === 'mine')  return item.createdBy === user;
-    if (activeTab === 'other') return item.createdBy === partnerName;
-    return true; // shared: todos
+    // Filtro por pestaña
+    if (activeTab === 'mine'  && item.createdBy !== user)        return false;
+    if (activeTab === 'other' && item.createdBy !== partnerName) return false;
+    // Filtro por búsqueda de texto
+    if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
+    // Filtro por categoría
+    if (filterCategory && item.category !== filterCategory) return false;
+    // Filtro por sentimiento (del usuario activo)
+    if (filterSentiment && (item.sentiments[user] || 'PENDING') !== filterSentiment) return false;
+    return true;
   });
+
 
   // Estilos dinámicos de los tabs (solo los valores que cambian con activeTab)
   const getTabStyle = (tab) => ({

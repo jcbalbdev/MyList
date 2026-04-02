@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import CategorySelector from './CategorySelector.jsx';
 import ListManager from './ListManager.jsx';
 import ErrorBanner from './ErrorBanner.jsx';
-import { USERS, STORAGE_KEYS } from '../config/constants.js';
+import { USERS, CATEGORIES, SENTIMENTS, STORAGE_KEYS } from '../config/constants.js';
 import { fetchItems, addItem, updateSentiment, deleteItem } from '../services/api.js';
 
 // ── Helpers de caché ──────────────────────────────────────────────────────────
@@ -23,10 +23,15 @@ function saveCache(items) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function DashboardApp() {
-  const [user, setUser]           = useState(null);
-  const [items, setItems]         = useState(() => loadCache() || []);
+  const [user, setUser]               = useState(null);
+  const [items, setItems]             = useState(() => loadCache() || []);
   const [listLoading, setListLoading] = useState(!loadCache());
-  const [error, setError]         = useState(null);
+  const [error, setError]             = useState(null);
+
+  // ── Búsqueda y filtros ────────────────────────────────────────────────────
+  const [search, setSearch]                   = useState('');
+  const [filterCategory, setFilterCategory]   = useState('');
+  const [filterSentiment, setFilterSentiment] = useState('');
 
   // ── Identificar usuario ───────────────────────────────────────────────────
   useEffect(() => {
@@ -38,7 +43,7 @@ export default function DashboardApp() {
     }
   }, []);
 
-  // ── Stale-While-Revalidate: refresca en background ────────────────────────
+  // ── Stale-While-Revalidate ────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
     fetchItems()
@@ -98,6 +103,7 @@ export default function DashboardApp() {
   if (!user) return null;
 
   const userColor = user === USERS.USER_A ? 'var(--color-pelis)' : 'var(--color-anime)';
+  const hasActiveFilters = search || filterCategory || filterSentiment;
 
   return (
     <div className="app-container">
@@ -116,8 +122,65 @@ export default function DashboardApp() {
 
       <ErrorBanner message={error} onClose={() => setError(null)} />
 
-      {/* Selector siempre disponible, sin bloqueo por carga */}
+      {/* Selector de categoría para agregar títulos */}
       <CategorySelector onAddTitle={handleAddTitle} />
+
+      {/* ── Barra de búsqueda y filtros (fuera del panel) ──────────────── */}
+      <div className="search-filter-bar">
+        {/* Buscador */}
+        <div className="search-input-wrap">
+          <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar título..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="search-input"
+          />
+          {search && (
+            <button className="search-clear" onClick={() => setSearch('')} title="Limpiar búsqueda">×</button>
+          )}
+        </div>
+
+        {/* Filtro por categoría */}
+        <select
+          id="filter-category"
+          value={filterCategory}
+          onChange={e => setFilterCategory(e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Todas las categorías</option>
+          {Object.values(CATEGORIES).map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.label}</option>
+          ))}
+        </select>
+
+        {/* Filtro por sentimiento */}
+        <select
+          id="filter-sentiment"
+          value={filterSentiment}
+          onChange={e => setFilterSentiment(e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Cualquier estado</option>
+          {Object.entries(SENTIMENTS).map(([key, s]) => (
+            <option key={key} value={key}>{s.label}</option>
+          ))}
+        </select>
+
+        {/* Botón limpiar — solo visible cuando hay algo activo */}
+        {hasActiveFilters && (
+          <button
+            className="filter-clear-btn"
+            onClick={() => { setSearch(''); setFilterCategory(''); setFilterSentiment(''); }}
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
 
       {listLoading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
@@ -129,6 +192,9 @@ export default function DashboardApp() {
           items={items}
           onChangeSentiment={handleChangeSentiment}
           onDeleteItem={handleDeleteItem}
+          search={search}
+          filterCategory={filterCategory}
+          filterSentiment={filterSentiment}
         />
       )}
     </div>
