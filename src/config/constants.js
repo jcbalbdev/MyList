@@ -7,7 +7,8 @@ export const CATEGORIES = {
   PELIS:      { id: 'pelis',      label: 'Pelis',      color: 'var(--color-pelis)' },
   SERIES:     { id: 'series',     label: 'Series',     color: 'var(--color-series)' },
   ANIME:      { id: 'anime',      label: 'Anime',      color: 'var(--color-anime)' },
-  PELIS_ANIME:{ id: 'pelis-anime',label: 'Pelis Anime',color: 'var(--color-pelis-anime)' }
+  PELIS_ANIME:{ id: 'pelis-anime',label: 'Pelis Anime',color: 'var(--color-pelis-anime)' },
+  TEATRO:     { id: 'teatro',     label: 'Teatro',     color: 'var(--color-teatro)' }
 };
 
 export const SENTIMENTS = {
