@@ -12,6 +12,7 @@ export const CATEGORIES = {
 
 export const SENTIMENTS = {
   PENDING:    { id: 'pending',    label: '⏳ Te falta mirarlo' },
+  WATCHING:   { id: 'watching',   label: '👀 Estoy viendo' },
   FASCINATED: { id: 'fascinated', label: '😍 Me fascinó' },
   LIKED:      { id: 'liked',      label: '👍 Me gustó' },
   AVERAGE:    { id: 'average',    label: '😐 Para pasar el rato' },
