@@ -1,11 +1,75 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { USERS } from '../config/constants';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="MyList - ¿Quién eres?">
+  <div class="split-screen">
+    <button class="split-side user-a" id="btn-user-a">
+      <h1>{USERS.USER_A}</h1>
+    </button>
+    <button class="split-side user-b" id="btn-user-b">
+      <h1>{USERS.USER_B}</h1>
+    </button>
+  </div>
+
+  <style>
+    /* Elimina el flash blanco: el body ya tiene los colores correctos desde el primer frame */
+    body {
+      background: linear-gradient(to right, #0ea5e9 50%, #ec4899 50%);
+      overflow: hidden;
+    }
+    .split-screen {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .split-side {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: flex 0.3s ease, filter 0.3s ease;
+      color: #ffffff;
+      position: relative;
+    }
+    .split-side.user-a {
+      background: #0ea5e9;
+    }
+    .split-side.user-b {
+      background: #ec4899;
+    }
+    .split-side:hover {
+      flex: 1.15;
+      filter: brightness(1.1);
+      z-index: 10;
+    }
+    .split-side h1 {
+      font-size: clamp(3rem, 5vw, 6rem);
+      font-weight: 700;
+      pointer-events: none;
+      color: #ffffff;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+  </style>
+
+  <script>
+    import { USERS } from '../config/constants.js';
+    
+    const btnA = document.getElementById('btn-user-a');
+    const btnB = document.getElementById('btn-user-b');
+
+    if (btnA && btnB) {
+      btnA.addEventListener('click', () => {
+        localStorage.setItem('currentUser', USERS.USER_A);
+        window.location.href = '/dashboard';
+      });
+      
+      btnB.addEventListener('click', () => {
+        localStorage.setItem('currentUser', USERS.USER_B);
+        window.location.href = '/dashboard';
+      });
+    }
+  </script>
 </Layout>
